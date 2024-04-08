@@ -30,12 +30,15 @@ const patterns = [
 
 describe("Bingo Game", function () {
   beforeEach("deployments", async function () {
-    [owner, minter, player1, player2, player3, player4] = await ethers.getSigners();
+    [owner, minter, player1, player2, player3, player4] =
+      await ethers.getSigners();
     const testERC20 = await ethers.getContractFactory("TestERC20");
     erc20 = await testERC20.connect(owner).deploy("testToken", "T");
     await erc20.deployed();
     const bingoGame = await ethers.getContractFactory("MockBingoGame");
-    bingo = await bingoGame.connect(owner).deploy(erc20.address, entryFee, minJoinWindow, minTurnWait);
+    bingo = await bingoGame
+      .connect(owner)
+      .deploy(erc20.address, entryFee, minJoinWindow, minTurnWait);
     await bingo.deployed();
   });
 
@@ -44,21 +47,29 @@ describe("Bingo Game", function () {
       expect(await bingo.getEntryFee()).to.be.equal(entryFee);
       await bingo.connect(owner).setEntryFee(2 * entryFee);
       expect(await bingo.getEntryFee()).to.be.equal(2 * entryFee);
-      await expect(bingo.connect(minter).setEntryFee(entryFee)).to.revertedWith("Ownable: caller is not the owner");
+      await expect(bingo.connect(minter).setEntryFee(entryFee)).to.revertedWith(
+        "Ownable: caller is not the owner"
+      );
     });
 
     it("Only owner can set minimum join duration", async function () {
       expect(await bingo.getJoinWindowDuration()).to.be.equal(minJoinWindow);
       await bingo.connect(owner).setJoinWindowDuration(2 * minJoinWindow);
-      expect(await bingo.getJoinWindowDuration()).to.be.equal(2 * minJoinWindow);
-      await expect(bingo.connect(minter).setJoinWindowDuration(minJoinWindow)).to.revertedWith("Ownable: caller is not the owner");
+      expect(await bingo.getJoinWindowDuration()).to.be.equal(
+        2 * minJoinWindow
+      );
+      await expect(
+        bingo.connect(minter).setJoinWindowDuration(minJoinWindow)
+      ).to.revertedWith("Ownable: caller is not the owner");
     });
 
     it("Only owner can set minimum Turn duration", async function () {
       expect(await bingo.getMinimumTurnTime()).to.be.equal(minTurnWait);
       await bingo.connect(owner).setMinimumTurnTime(2 * minTurnWait);
       expect(await bingo.getMinimumTurnTime()).to.be.equal(2 * minTurnWait);
-      await expect(bingo.connect(minter).setMinimumTurnTime(minTurnWait)).to.revertedWith("Ownable: caller is not the owner");
+      await expect(
+        bingo.connect(minter).setMinimumTurnTime(minTurnWait)
+      ).to.revertedWith("Ownable: caller is not the owner");
     });
   });
 
@@ -68,7 +79,9 @@ describe("Bingo Game", function () {
     gameCount++;
     await erc20.connect(minter).mint(player1.address, entryFee / 2);
     await erc20.connect(player1).approve(bingo.address, entryFee);
-    await expect(bingo.connect(player1).joinGame(gameCount)).to.be.revertedWith("ERC20: transfer amount exceeds balance");
+    await expect(bingo.connect(player1).joinGame(gameCount)).to.be.revertedWith(
+      "ERC20: transfer amount exceeds balance"
+    );
   });
 
   it("Should revert if player doesn't give approval to bingo contract", async function () {
@@ -76,7 +89,9 @@ describe("Bingo Game", function () {
     await bingo.connect(owner).createGame();
     gameCount++;
     await erc20.connect(minter).mint(player1.address, entryFee);
-    await expect(bingo.connect(player1).joinGame(gameCount)).to.be.revertedWith("ERC20: insufficient allowance");
+    await expect(bingo.connect(player1).joinGame(gameCount)).to.be.revertedWith(
+      "ERC20: insufficient allowance"
+    );
   });
 
   it("Should add player to the game with proper funds and approvals", async function () {
@@ -195,20 +210,31 @@ describe("Bingo Game", function () {
 
     await bingo.connect(player1).joinGame(gameCount);
 
-    await expect(bingo.draw(gameCount)).to.be.revertedWithCustomError(bingo, "GameNotStarted");
+    await expect(bingo.draw(gameCount)).to.be.revertedWithCustomError(
+      bingo,
+      "GameNotStarted"
+    );
     await time.increase(minJoinWindow);
     await bingo.draw(gameCount);
-    await expect(bingo.connect(player2).joinGame(gameCount)).to.be.revertedWithCustomError(bingo, "GameInProgress");
+    await expect(
+      bingo.connect(player2).joinGame(gameCount)
+    ).to.be.revertedWithCustomError(bingo, "GameInProgress");
   });
 
   it("Can draw next number after the minimum turn time", async function () {
     let gameCount = 0;
     await bingo.connect(owner).createGame();
     gameCount++;
-    await expect(bingo.draw(gameCount)).to.be.revertedWithCustomError(bingo, "GameNotStarted");
+    await expect(bingo.draw(gameCount)).to.be.revertedWithCustomError(
+      bingo,
+      "GameNotStarted"
+    );
     await time.increase(minJoinWindow);
     await bingo.draw(gameCount);
-    await expect(bingo.draw(gameCount)).to.be.revertedWithCustomError(bingo, "WaitForNextTurn");
+    await expect(bingo.draw(gameCount)).to.be.revertedWithCustomError(
+      bingo,
+      "WaitForNextTurn"
+    );
     await time.increase(minTurnWait);
     await bingo.draw(gameCount);
   });
