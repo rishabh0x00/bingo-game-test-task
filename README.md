@@ -17,9 +17,9 @@ Make sure you have the following installed on your machine:
 ### Installation
 
 1. Clone this repository to your local machine by running the following command in your terminal:
-   ``git clone https://github.com/rishabh0x00/Bingo-Game-Test-Task``
+   ``git clone https://github.com/rishabh0x00/bingo-game-test-task``
 2. Navigate to the project directory:
-   ``cd Bingo-Test-Task``
+   ``cd bingo-game-test-task``
 3. Install project dependencies:
    ``npm install``
 
