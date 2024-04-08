@@ -29,7 +29,7 @@ contract BingoGame is Ownable, IBingoGame {
         mapping(uint8 => bool) drawnNumbers; //check uint8
     }
 
-    uint8[5][12] private _GridPatterns = [
+    uint8[5][12] private _GRID_PATTERNS = [
         [0, 1, 2, 3, 4],
         [5, 6, 7, 8, 9],
         [10, 11, 12, 13, 0],
@@ -193,7 +193,7 @@ contract BingoGame is Ownable, IBingoGame {
         bool result = true;
 
         for (uint256 j; j < 12; j++) {
-            uint8[5] memory pattern = _GridPatterns[j];
+            uint8[5] memory pattern = _GRID_PATTERNS[j];
             uint256 patternLength = (j == 2 || j == 7 || j == 10 || j == 11)
                 ? 4
                 : 5;
